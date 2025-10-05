@@ -1,5 +1,70 @@
 ---
-title: "ej_screen"
+title: "EJ Screen Analysis"
+author: Ava Robillard
+date: 10/5/25
 format: html
 ---
+## Insert title + introduction
+
+## Load packages
+```{r}
+#| message: FALSE
+library(tidyverse)
+library(sf)
+library(here)
+library(dplyr)
+library(tmap)
+library(viridisLite)
+```
+
+## Import data
+```{r}
+#| message = FALSE
+# Read in geodatabase of EJScreen data at the Census Block Group level
+ejscreen <- sf::st_read(here::here("data", "ejscreen","EJSCREEN_2023_BG_StatePct_with_AS_CNMI_GU_VI.gdb"))
+```
+
+## Filter data
+```{r}
+#| warning = FALSE
+
+# Filter to Texas only
+texas <- ejscreen %>%
+  dplyr::filter(ST_ABBREV == "TX") 
+
+# Filter to Comal County only
+comal <- ejscreen %>%
+  filter(CNTY_NAME %in% c("Comal County")) 
+
+# Find the average values for all variables within counties
+texas_counties <- aggregate(texas, by = list(texas$CNTY_NAME), FUN = mean)
+
+```
+
+## Visualize data
+```{r}
+#| message = FALSE
+
+tm_shape(comal) +
+  tm_compass() +
+  tm_scalebar() +
+  tm_polygons(fill = "LOWINCPCT",
+              #fill.scale = tm_scale(values = c("azure1", "paleturquoise4")),
+              fill.scale = tm_scale(values = "brewer.PuBu"),
+              fill.legend = tm_legend(title = "Low Income (% of individuals)")) +
+  tm_layout(main.title = "Low Income by Census Block Group in Comal County, Texas") 
+```
+
+```{r}
+#| message = FALSE
+
+tm_shape(comal) +
+  tm_compass() +
+  tm_scalebar() +
+  tm_polygons(fill = "PM25",
+              #fill.scale = tm_scale(values = c("pink1", "indianred4")),
+              fill.scale = tm_scale(values = "brewer.OrRd"),
+              fill.legend = tm_legend(title = "PM 2.5 (mg/c3)")) +
+  tm_layout(main.title = "Particulate Matter 2.5 by Census Block Group in Comal County, Texas") 
+```
 
