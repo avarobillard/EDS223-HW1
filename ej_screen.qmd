@@ -1,10 +1,18 @@
 ---
-title: "EJ Screen Analysis"
+title: "EJScreen Analysis"
 author: Ava Robillard
 date: 10/5/25
-format: html
+format: pdf
+execute: 
+  message: false
+  warning: false
 ---
-## Insert title + introduction
+## Exploring environmental (in)justice in Comal County, Texas
+
+Adverse environmental effects on health and climate are not always experienced equally by all social groups. This makes mapping these inequities important for making informed decisions about environmental justice and ensuring that all people have equitable access to a healthy and resilient environment.
+
+**Objective**: Use EJScreen spatial data at the Census block group level to visualize environmental and social variables in Comal County, Texas.
+
 
 ## Load packages
 ```{r}
@@ -18,13 +26,16 @@ library(viridisLite)
 ```
 
 ## Import data
+1. Import spatial data from the EJScreen geodatabase
 ```{r}
 #| message = FALSE
 # Read in geodatabase of EJScreen data at the Census Block Group level
-ejscreen <- sf::st_read(here::here("data", "ejscreen","EJSCREEN_2023_BG_StatePct_with_AS_CNMI_GU_VI.gdb"))
+ejscreen <- sf::st_read(here::here
+      ("data", "ejscreen","EJSCREEN_2023_BG_StatePct_with_AS_CNMI_GU_VI.gdb"))
 ```
 
 ## Filter data
+2. Filter data to only Comal County, Texas 
 ```{r}
 #| warning = FALSE
 
@@ -35,36 +46,66 @@ texas <- ejscreen %>%
 # Filter to Comal County only
 comal <- ejscreen %>%
   filter(CNTY_NAME %in% c("Comal County")) 
-
-# Find the average values for all variables within counties
-texas_counties <- aggregate(texas, by = list(texas$CNTY_NAME), FUN = mean)
-
 ```
 
 ## Visualize data
+3. Produce a map of percent people of color within Comal County block groups to visualize demographic data
 ```{r}
 #| message = FALSE
 
+# Create map 
 tm_shape(comal) +
-  tm_compass() +
-  tm_scalebar() +
-  tm_polygons(fill = "LOWINCPCT",
-              #fill.scale = tm_scale(values = c("azure1", "paleturquoise4")),
+  tm_compass(position = c("left", "bottom"), size = 1) +
+  tm_scalebar(position = c("left", "bottom"), size = 0.8) +
+  tm_polygons(fill = "PEOPCOLORPCT",
               fill.scale = tm_scale(values = "brewer.PuBu"),
-              fill.legend = tm_legend(title = "Low Income (% of individuals)")) +
-  tm_layout(main.title = "Low Income by Census Block Group in Comal County, Texas") 
+              fill.legend = 
+                tm_legend(title = "People of Color \n (% of total population)")) +
+  tm_layout(main.title =
+            "People of Color by Census Block Group \n in Comal County, Texas",
+            title.size = 1,
+            title.fontface = "bold",
+            bg.color = "white",
+            outer.bg.color = "lightgrey",
+            legend.title.size = 0.7,
+            frame.double_line = TRUE) 
 ```
 
+4. Produce a map of Particulate Matter 2.5 in Comal County to visualize environmental data
 ```{r}
 #| message = FALSE
 
+# Create map
 tm_shape(comal) +
-  tm_compass() +
-  tm_scalebar() +
+  tm_compass(position = c("left", "bottom"), size = 1) +
+  tm_scalebar(position = c("left", "bottom"), size = 0.8) +
   tm_polygons(fill = "PM25",
-              #fill.scale = tm_scale(values = c("pink1", "indianred4")),
               fill.scale = tm_scale(values = "brewer.OrRd"),
-              fill.legend = tm_legend(title = "PM 2.5 (mg/c3)")) +
-  tm_layout(main.title = "Particulate Matter 2.5 by Census Block Group in Comal County, Texas") 
+              fill.legend = 
+                tm_legend(title =
+                            "Annual Average \n PM 2.5 (mg/c^3)")) +
+  tm_layout(main.title =
+            "Particulate Matter 2.5 by Census Block Group \n in Comal County, Texas",
+            title.size = 1,
+            title.fontface = "bold",
+            bg.color = "white",
+            outer.bg.color = "lightgrey",
+            legend.title.size = 0.7,
+            frame.double_line = TRUE) 
 ```
 
+## Map Interpretation
+
+In both maps, there seems to be a trend towards higher values of both the demographic and environmental variable studied being concentrated in the southeast portion of Comal County. The same census block groups containing the higher bin values of percent people of color, 0.6-0.7 and 0.8-1.0, also had higher annual averages of Particulate Matter 2.5 concentrations in the air, 9.30-9.40 mg/cm^3. This communicates visually that there is likely environmental injustice present within Comal County county based upon the high percent people of color in the same areas as high potential exposure to inhalable particles, an environmental hazard. One potential explanation of this is that the southeast side of Comal County borders a large interstate, I-35. This might contribute to the larger environmental risk and potential health hazards experienced by the demographics that live in more concentrated and suburban areas next to a highway.
+
+Further analysis steps could include:
+
+- Labeling Interstate Highway 35 and incorporating more environmental variables related to major roadway proximity such as traffic proximity and volume and diesel PM, both available in the EJScreen.
+- Expanding the analysis to more Texas counties, especially more rural areas like Comal County that might have less studies done regarding environmental justice.
+
+### Data Citations
+EJScreen: 
+
+United States Environmental Protection Agency. 2015. EJSCREEN. Retrieved: October 6th, from www.epa.gov/ejscreen.
+
+Unoffical website: <https://pedp-ejscreen.azurewebsites.net/>

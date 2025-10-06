@@ -51,4 +51,11 @@ rsconnect/
 # Data folder
 data/
 
+# DS Store
 .DS_Store
+
+# Html file
+ej_screen.html
+
+# Ej screen files
+ej_screen_files/
