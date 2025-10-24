@@ -11,7 +11,7 @@ The **ej_screen.qmd** file contains the main analysis and visualizations.
 The **data** folder contains the ejscreen data imported for the analysis.
 
 ``` bash
-EDS223-HW1
+comal-envjustice
 │   README.md
 │   ej_screen.qmd
 |   ej_screen.pdf
